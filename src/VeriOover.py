@@ -32,8 +32,8 @@ def RunVeri(filepath, spec):
 
     flag = DetectError()
 
-    if flag == "unknow":
-        print("spec unknow!")
+    if flag == "unknown":
+        print("spec unknown!")
         return
 
     data_model = "LP64"
