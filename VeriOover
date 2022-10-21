@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+
+
+import argparse
+import sys
+import os
+import shutil
+
+sys.path.append(os.path.dirname(__file__) + "/src")
+sys.path.append(os.path.dirname(__file__) + "/lib")
+
+ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
+LIB_PATH = ROOT_PATH + '/lib/'
+TMP_PATH = "/tmp/verioover/"
+
+ld_path = os.getenv("LD_LIBRARY_PATH")
+if ld_path == None or not LIB_PATH in ld_path:
+    if ld_path == None:
+        os.environ['LD_LIBRARY_PATH'] = LIB_PATH
+    else:
+        os.environ['LD_LIBRARY_PATH'] += ":" + LIB_PATH
+
+folder = os.path.exists(TMP_PATH)
+if not folder:
+    os.makedirs(TMP_PATH)
+
+if not os.path.exists(TMP_PATH+"runtime"):
+    shutil.copytree(LIB_PATH + "runtime", TMP_PATH + "runtime/lib/")
+
+
+from VeriOover import *
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Overflow Verifier.\n ")
+
+    parser.add_argument("-file", type=str ,help="Input file path")
+    parser.add_argument("-spec", type=str, help="Input specification path")
+    parser.add_argument("-all", help="Run all Overflow Verification tasks")
+    parser.add_argument("--version", help="VeriOover version 1.0", action='version', version="VeriOover 1.0")
+
+
+    args = parser.parse_args()
+
+    if args.all != None:
+        OverflowsCheck()
+    elif args.file != None and args.spec != None:
+        RunVeri(args.file, args.spec)
+    elif args.file == None:
+        print("usage: VeriOover.py [-h] [-file FILE] [-spec SPEC] [-all ALL]")
+    elif args.spec == None:
+        print("usage: VeriOover.py [-h] [-file FILE] [-spec SPEC] [-all ALL]")
+    else:
+        pass
