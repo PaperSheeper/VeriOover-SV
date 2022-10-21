@@ -71,7 +71,7 @@ def DetectError():
     if "overflow on" in msg:
         return "violation"
     elif "concretized symbolic size" in msg:
-        return "unknow"
+        return "unknown"
     elif "failed external call: __ubsan_handle_negate_overflow" in msg:
         return "violation"
     else:
