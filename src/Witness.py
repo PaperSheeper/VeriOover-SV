@@ -1,5 +1,5 @@
 import hashlib
-import lib.networkx as nx
+import networkx as nx
 import os
 import subprocess
 import re

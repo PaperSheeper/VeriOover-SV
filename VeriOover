@@ -6,8 +6,11 @@ import sys
 import os
 import shutil
 
-sys.path.append(os.path.dirname(__file__) + "/src")
-sys.path.append(os.path.dirname(__file__) + "/lib")
+VERSION = "1.0"
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/lib")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/src")
+
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 LIB_PATH = ROOT_PATH + '/lib/'
@@ -37,7 +40,7 @@ if __name__ == '__main__':
     parser.add_argument("-file", type=str ,help="Input file path")
     parser.add_argument("-spec", type=str, help="Input specification path")
     parser.add_argument("-all", help="Run all Overflow Verification tasks")
-    parser.add_argument("--version", help="VeriOover version 1.0", action='version', version="VeriOover 1.0")
+    parser.add_argument("--version", action='version', version="version "+ VERSION)
 
 
     args = parser.parse_args()

@@ -1,5 +1,5 @@
 import subprocess
-import src.Witness
+import Witness
 import os
 
 TestPath = "/tmp/verioover/"

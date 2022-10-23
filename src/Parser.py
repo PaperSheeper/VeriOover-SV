@@ -1,7 +1,7 @@
 import re
 import os
 from pycparser import CParser, c_ast, c_parser, c_generator
-from src.Exterfun import *
+from Exterfun import *
 
 HEADER = ""
 HEADER_c = "#include \"klee/klee.h\"\n"
