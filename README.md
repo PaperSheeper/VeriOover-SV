@@ -12,6 +12,7 @@ VeriOover is a verifier for detecting overflow. (C programs)
 - pycparser 2.21
 - PyYAML 6.0
 - networkx 2.8.6
+- Z3 4.11.2
 
 
 
