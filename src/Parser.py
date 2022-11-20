@@ -2,6 +2,10 @@ import re
 import os
 from pycparser import CParser, c_ast, c_parser, c_generator
 from Exterfun import *
+from src.Opt import *
+from Witness import *
+import signal
+import time
 
 HEADER = ""
 HEADER_c = "#include \"klee/klee.h\"\n"
@@ -9,12 +13,40 @@ TestPath = "/tmp/verioover/"
 
 cur_scope = ""
 
+
+def set_timeout(num, callback):
+    def wrap(func):
+        def handle(sig, frame):
+            raise RuntimeError
+
+
+        def to_do(*args, **kwargs):
+            try:
+                signal.signal(signal.SIGALRM, handle)
+                signal.alarm(num)
+                r = func(*args, **kwargs)
+                signal.alarm(0)
+                return r
+            except RuntimeError as e:
+                callback()
+
+        return to_do
+    return wrap
+
+def aftertime():
+    print("parser timeout!")
+
 def init(ast):
+    haslist = []
     for i in range(len(ast.ext)):
         if isinstance(ast.ext[i] ,c_ast.Decl):
             # if ast.ext[i].storage == ['extern'] and "__VERIFIER_nondet" in ast.ext[i].name:
             if "__VERIFIER_nondet" in ast.ext[i].name:
                 funname = ast.ext[i].name
+                if funname in haslist:
+                    ast.ext[i] = None
+                    continue
+                haslist.append(funname)
                 ast.ext[i] = exterfun[funname][0]
                 ast.ext.insert(i, exterfun[funname][1])
 
@@ -295,22 +327,24 @@ def replace_sym(ast):
 
     return ast, lineno, scopelist
 
-
+@set_timeout(5, aftertime)
 def InsertConcent(filepath, filename):
-    f = open(filepath, "r+")
     linenumber = {}
-    verscope = {}
-    code = f.read()
-    fnew = open(TestPath + filename, "w")
+    varscope = {}
+    optflag = False
 
     if ".i" not in filename:
+        f = open(filepath, "r+")
+        code = f.read()
+        fnew = open(TestPath + filename, "w")
+
         code = re.sub(r"\/\*(?:[^\*]|\*+[^\/\*])*\*+\/", "", code)
         code = re.sub(r"//.*", "", code)
         code = re.sub(r".*__attribute__.*;", "", code)
         code = re.sub(r".*__extension__.*;", "", code)
         parser = CParser()
         ast = parser.parse(code)
-        ast, linenumber, verscope = replace_sym(ast)
+        ast, linenumber, varscope = replace_sym(ast)
         init(ast)
 
         g = c_generator.CGenerator()
@@ -318,11 +352,13 @@ def InsertConcent(filepath, filename):
         fnew.write(g.visit(ast))
 
     else:
-        fnew.write(code)
+        # fnew.write(code)
+        raise TypeError
+        pass
 
     fnew.close()
 
-    return linenumber, verscope
+    return linenumber, varscope, ast
 
 
 

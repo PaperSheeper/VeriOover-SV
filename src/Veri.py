@@ -63,6 +63,7 @@ def RunKlee(filename):
 
     subprocess.Popen.wait(klee_ver)
 
+
 def DetectError():
     msgfile = open(TestPath + "/klee-last/messages.txt")
     msg = msgfile.read()

@@ -6,14 +6,15 @@ import sys
 import os
 import shutil
 
-VERSION = "1.0"
+VERSION = "1.1"
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/lib")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/src")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/lib")
 
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 LIB_PATH = ROOT_PATH + '/lib/'
+BIN_PATH = ROOT_PATH + "/bin/"
 TMP_PATH = "/tmp/verioover/"
 
 ld_path = os.getenv("LD_LIBRARY_PATH")
@@ -22,6 +23,10 @@ if ld_path == None or not LIB_PATH in ld_path:
         os.environ['LD_LIBRARY_PATH'] = LIB_PATH
     else:
         os.environ['LD_LIBRARY_PATH'] += ":" + LIB_PATH
+
+
+os.environ["Z3_LIBRARY_PATH"] = LIB_PATH
+os.environ["Z3_LIB_DIRS"] = BIN_PATH
 
 folder = os.path.exists(TMP_PATH)
 if not folder:

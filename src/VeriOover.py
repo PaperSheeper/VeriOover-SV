@@ -4,6 +4,7 @@ import yaml
 import os
 import argparse
 
+import Opt
 # import changef
 import Witness
 from Parser import InsertConcent
@@ -18,19 +19,47 @@ rightnum = 0
 unknow = 0
 falsenum = 0
 exitnum = 0
+summ = 0
 
 
 def RunVeri(filepath, spec):
     start = filepath.rfind("/") + 1
     filename = filepath[start:]
 
-    linenumber, varscope = InsertConcent(filepath, filename)
+    try:
+        linenumber, varscope, ast = InsertConcent(filepath, filename)
+
+    except:
+        print("spec unknown!")
+        return
 
     Runclang(filename, TestPath + filename)
 
     RunKlee(filename)
 
     flag = DetectError()
+
+    print("flag: ", flag)
+
+
+    try:
+        satlist, satflag, optflag = Opt.OptAll(ast, linenumber)
+
+        # print(linenumber)
+        # print(satlist)
+        idmap = []
+        if optflag and satflag and flag == "pass":
+            for i in satlist:
+                name = str(i)
+                if name in linenumber:
+                    idmap.append((name, str(satlist[i].as_long())))
+
+            print("spec incorrect!")
+
+            Witness.OptGengraphml("violation", filepath, "LP64", linenumber, varscope, idmap, "./witness.graphml")
+            return
+    except:
+        pass
 
     if flag == "unknown":
         print("spec unknown!")
@@ -51,20 +80,33 @@ def RunVeri(filepath, spec):
         print("spec incorrect!")
 
 
+    return
+    # try:
+    #     os.system("rm -rf /tmp/verioover/klee-*")
+    # except:
+    #     pass
+
+
 def OverflowsCheck():
     Prefix = "./sv-benchmarks-main/c/"
-    NoOverflowsSet = open("./sv-benchmarks-main/c/NoOverflows-BitVectors.set")
+    NoOverflowsSet = open("./sv-benchmarks-main/c/NoOverflows-Main.set")
     NoOverflowsYmlList = NoOverflowsSet.read().split('\n')[1:]
 
     NoOverflowsYmlList = [x for x in NoOverflowsYmlList if x != '']
-    logfile = open("./test/witness.log", "w")
+
+    logfile = open("./test/test.log", "w")
     global cnt
     global rightnum
     global unknow
     global falsenum
     global exitnum
+    global summ
 
     for i in NoOverflowsYmlList:
+        # try:
+        #     os.system("rm -rf /tmp/verioover/klee-*")
+        # except:
+        #     pass
         TarDirPath = Prefix + i[:-5]
         print("Now Path: ", TarDirPath)
         TarDir = os.listdir(TarDirPath)
@@ -88,10 +130,21 @@ def OverflowsCheck():
             data_model = yml["options"]["data_model"]
 
 
-            # try:
             print(filepath)
-            linenumber, varscope = InsertConcent(filepath, filename)
-            Runclang(filename, "./test/" + filename)
+            cnt += 1
+
+            try:
+                linenumber, varscope, ast = InsertConcent(filepath, filename)
+            except:
+                logfile.write(filepath + '\n')
+                print("spec unknow!")
+                unknow += 1
+                print("Correct/All: {}/{}".format(rightnum, cnt))
+                print("Unknow/All: {}/{}".format(unknow, cnt))
+                print("false/All: {}/{}".format(falsenum, cnt))
+                continue
+
+            Runclang(filename, TestPath + filename)
             RunKlee(filename)
             flag = DetectError()
 
@@ -105,7 +158,6 @@ def OverflowsCheck():
 
             outpath = "./test/" + filename[:-2] + '.graphml'
             Witness.Gengraphml(flag, filepath, data_model, linenumber,varscope, outpath)
-            cnt += 1
 
             if flag == "pass":
                 rightnum += 1

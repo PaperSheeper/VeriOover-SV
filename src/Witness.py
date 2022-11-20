@@ -175,7 +175,7 @@ def Gengraphml(flag, filepath, data_model, linenumber, varscope, outpath):
         addnodedata(G, nodeid, "entry", "true")
         nodeid += 1
         # print(linenumber)
-        # print(idmap)
+        print(idmap)
         for idname, idval in idmap:
             r1 = r"symbolic-"
             if not (re.search(r1, idname)):
@@ -192,3 +192,68 @@ def Gengraphml(flag, filepath, data_model, linenumber, varscope, outpath):
         # outpath = outpath[:sname+1] + "False_" + outpath[sname+1:]
 
         nx.write_graphml(G, outpath, named_key_ids=True)
+
+def OptGengraphml(flag, filepath, data_model, linenumber, varscope, idmap, outpath):
+    G = NetGraph()
+
+    nodeid = 0
+
+    if flag == "pass":
+        witness_type = "correctness_witness"
+        sourcecodelang = "C"
+        producer = getproducer()
+        spec = "CHECK( init(main()), LTL(G ! overflow) )"
+        programfile = filepath
+        sha256 = getsha256(filepath)
+        architecture = getarchitecture(data_model)
+
+        addwitness_type(G, witness_type)
+        addsourcecodelang(G, sourcecodelang)
+        addproducer(G, producer)
+        addspec(G, spec)
+        addprogramfile(G, programfile)
+        addsha256(G, sha256)
+        addarchitecture(G, architecture)
+
+        addnodedata(G, nodeid, "entry", "true")
+        # outpath_1= "/home/jucico/sv/VeriOover-main/correct_witness/"+outpath[:-8][7:]+'.graphml'
+        # sname = outpath.rfind("/")
+        # outpath = outpath[:sname+1] + "True_" + outpath[sname+1:]
+        nx.write_graphml(G, outpath, named_key_ids=True)
+
+    else:
+        witness_type = "violation_witness"
+        sourcecodelang = "C"
+        producer = getproducer()
+        spec = "CHECK( init(main()), LTL(G ! overflow) )"
+        programfile = filepath
+        sha256 = getsha256(filepath)
+        architecture = getarchitecture(data_model)
+
+        addwitness_type(G, witness_type)
+        addsourcecodelang(G, sourcecodelang)
+        addproducer(G, producer)
+        addspec(G, spec)
+        addprogramfile(G, programfile)
+        addsha256(G, sha256)
+        addarchitecture(G, architecture)
+
+        # idmap, objnum = Finderror(TestPath + "/klee-last/")
+
+        addnodedata(G, nodeid, "entry", "true")
+        nodeid += 1
+        # print(linenumber)
+        # print(idmap)
+
+        for idname, idval in idmap:
+            r1 = r"symbolic-"
+            if not (re.search(r1, idname)):
+                addnode(G, nodeid)
+                addedgedata(G, nodeid - 1, nodeid, linenumber[idname], filepath, idname + "==" + idval,
+                            varscope[idname])
+                nodeid += 1
+
+        addnodedata(G, nodeid, "violation", "true")
+        addedge(G, nodeid - 1, nodeid)
+        nx.write_graphml(G, outpath, named_key_ids=True)
+
