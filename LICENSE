@@ -32,6 +32,7 @@ Program             Directories           License
 networkx             lib/networkx         lib/networkx.LICENSE.txt
 pycparser            lib/pycparser        lib/pycparser.LICENSE.txt
 yaml                 lib/yaml             lib/ymal.LICENSE.txt
+Z3                   lib/z3               lib/z3.LICENSE.txt
 
 In addition, a binary distribution of VeriOover contains at least the following
 tools and packages, which come with their own licenses:
