@@ -37,5 +37,6 @@ optional arguments:
 ./VeriOover.py -file /path/to/file -spec /path/to/specification
 ```
 
-
+## Authors
+This project is an implementation of the paper *VeriOover: A Verifier for Detecting Signed Integers Overflow*, by Jian Fang, Haipeng Qu,Rongqian Zhou, Yaojun Hou and Xuan Zhang.
 
