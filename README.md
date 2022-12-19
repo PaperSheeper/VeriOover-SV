@@ -38,5 +38,5 @@ optional arguments:
 ```
 
 ## Authors
-This project is an implementation of the paper *VeriOover: A Verifier for Detecting Signed Integers Overflow*, by Jian Fang, Haipeng Qu,Rongqian Zhou, Yaojun Hou and Xuan Zhang.
+This project is the implementation of the paper *VeriOover: A Verifier for Detecting Signed Integers Overflow*, by Jian Fang, Haipeng Qu,Rongqian Zhou, Yaojun Hou and Xuan Zhang.
 
